@@ -21,6 +21,13 @@ program
       process.exit(1);
     }
     const pathname = path.resolve(file);
+    try {
+      fs.accessSync(pathname);
+    } catch(e) {
+      // eslint-disable-next-line
+      console.log('文件不存在');
+      process.exit(1);
+    }
     const stats = fs.statSync(pathname);
     if (!stats.isFile()) {
       // eslint-disable-next-line
@@ -41,6 +48,7 @@ program
       // eslint-disable-next-line
       console.log(`encode done! costtime: ${Date.now() - start}ms`);
     }).catch(e => {
+      fs.unlinkSync(encodePathname);
       // eslint-disable-next-line
       console.log(e);
       process.exit(1);
@@ -60,13 +68,24 @@ program
       process.exit(1);
     }
     const pathname = path.resolve(file);
+    try {
+      fs.accessSync(pathname);
+    } catch(e) {
+      // eslint-disable-next-line
+      console.log('文件不存在');
+      process.exit(1);
+    }
     const stats = fs.statSync(pathname);
     if (!stats.isFile()) {
       // eslint-disable-next-line
       console.log('必须为文件');
       process.exit(1);
     }
-    const decodePathname = pathname.replace(/\.cryp$/, '');
+    let decodePathname = pathname.replace(/\.cryp$/, '');
+    if (decodePathname === pathname) {
+      const filename = 'decode-' + decodePathname.split('/').pop();
+      decodePathname = path.join(decodePathname, '../', filename);
+    }
     const input = fs.createReadStream(pathname);
     const output = fs.createWriteStream(decodePathname);
     const start = Date.now();
@@ -80,8 +99,14 @@ program
       // eslint-disable-next-line
       console.log(`decode done! costtime: ${Date.now() - start}ms`);
     }).catch(e => {
-      // eslint-disable-next-line
-      console.log(e);
+      fs.unlinkSync(decodePathname);
+      if (e.message.indexOf('bad decrypt') > -1) {
+        // eslint-disable-next-line
+        console.log('密码错误');
+      } else {
+        // eslint-disable-next-line
+        console.log(e);
+      }
       process.exit(1);
     });
   });

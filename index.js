@@ -13,8 +13,8 @@ const encode = ({ readable, writable, algorithm = 'aes192', password }) => {
   }
 
   const cipher = crypto.createCipher(algorithm, password);
-  readable.pipe(cipher).pipe(writable);
   return new Promise((resolve, reject) => {
+    readable.pipe(cipher).pipe(writable);
     writable.on('finish', resolve);
     writable.on('error', reject);
   });
@@ -29,8 +29,11 @@ const decode = ({ readable, writable, algorithm = 'aes192', password }) => {
   }
 
   const decipher = crypto.createDecipher(algorithm, password);
-  readable.pipe(decipher).pipe(writable);
   return new Promise((resolve, reject) => {
+    readable
+      .pipe(decipher)
+      .on('error', reject)
+      .pipe(writable);
     writable.on('finish', resolve);
     writable.on('error', reject);
   });

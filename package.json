@@ -1,17 +1,25 @@
 {
   "name": "cryption",
   "version": "0.0.2",
-  "description": "",
+  "description": "Node.js 加解密流数据",
   "main": "index.js",
+  "dependencies": {
+    "commander": "^2.14.1"
+  },
   "scripts": {
     "test": "node test/index.js"
   },
   "bin": {
     "cryp": "./bin/cryp"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lqqyt2423/cryption.git"
+  },
   "author": "liqiqiang",
   "license": "MIT",
-  "dependencies": {
-    "commander": "^2.14.1"
-  }
+  "bugs": {
+    "url": "https://github.com/lqqyt2423/cryption/issues"
+  },
+  "homepage": "https://github.com/lqqyt2423/cryption#readme"
 }

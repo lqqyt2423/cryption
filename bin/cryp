@@ -1,0 +1,100 @@
+#!/usr/bin/env node
+
+const program = require('commander');
+const path = require('path');
+const fs = require('fs');
+const cryp = require('../');
+const version = require('../package.json').version;
+
+program.version(version, '-v --version');
+
+program
+  .command('encode [file]')
+  .description('加密文件')
+  .option('-a --algorithm <algo>', '算法')
+  .option('-p --password <pass>', '密码')
+  .option('-r --retain', '保留')
+  .action((file, { algorithm, password, retain }) => {
+    if (!file) {
+      // eslint-disable-next-line
+      console.log('请输入文件地址');
+      process.exit(1);
+    }
+    const pathname = path.resolve(file);
+    const stats = fs.statSync(pathname);
+    if (!stats.isFile()) {
+      // eslint-disable-next-line
+      console.log('必须为文件');
+      process.exit(1);
+    }
+    const encodePathname = pathname + '.cryp';
+    const input = fs.createReadStream(pathname);
+    const output = fs.createWriteStream(encodePathname);
+    const start = Date.now();
+    cryp.encode({
+      readable: input,
+      writable: output,
+      algorithm,
+      password
+    }).then(() => {
+      if (!retain) fs.unlinkSync(pathname);
+      // eslint-disable-next-line
+      console.log(`encode done! costtime: ${Date.now() - start}ms`);
+    }).catch(e => {
+      // eslint-disable-next-line
+      console.log(e);
+      process.exit(1);
+    });
+  });
+
+program
+  .command('decode [file]')
+  .description('解密文件')
+  .option('-a --algorithm <algo>', '算法')
+  .option('-p --password <pass>', '密码')
+  .option('-r --retain', '保留')
+  .action((file, { algorithm, password, retain }) => {
+    if (!file) {
+      // eslint-disable-next-line
+      console.log('请输入文件地址');
+      process.exit(1);
+    }
+    const pathname = path.resolve(file);
+    const stats = fs.statSync(pathname);
+    if (!stats.isFile()) {
+      // eslint-disable-next-line
+      console.log('必须为文件');
+      process.exit(1);
+    }
+    const decodePathname = pathname.replace(/\.cryp$/, '');
+    const input = fs.createReadStream(pathname);
+    const output = fs.createWriteStream(decodePathname);
+    const start = Date.now();
+    cryp.decode({
+      readable: input,
+      writable: output,
+      algorithm,
+      password
+    }).then(() => {
+      if (!retain) fs.unlinkSync(pathname);
+      // eslint-disable-next-line
+      console.log(`decode done! costtime: ${Date.now() - start}ms`);
+    }).catch(e => {
+      // eslint-disable-next-line
+      console.log(e);
+      process.exit(1);
+    });
+  });
+
+program
+  .command('*')
+  .description('show help')
+  .action(() => {
+    program.outputHelp();
+  });
+
+program.parse(process.argv);
+
+if (!process.argv.slice(2).length) {
+  program.outputHelp();
+}

@@ -1,0 +1,17 @@
+{
+  "name": "cryption",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test/index.js"
+  },
+  "bin": {
+    "cryp": "./bin/cryp"
+  },
+  "author": "liqiqiang",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^2.14.1"
+  }
+}
